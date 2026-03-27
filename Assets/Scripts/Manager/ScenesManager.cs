@@ -7,7 +7,7 @@ public class ScenesManager : MonoBehaviour
     [SerializeField] private GameObject loadingUI;
 
     private static ScenesManager instance;
-    public static ScenesManager Instance => instance = instance != null ? instance : FindObjectOfType<ScenesManager>();
+    public static ScenesManager Instance => instance = instance != null ? instance : FindFirstObjectByType<ScenesManager>();
 
     private void Awake()
     {

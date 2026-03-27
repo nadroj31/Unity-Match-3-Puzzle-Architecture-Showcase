@@ -12,7 +12,17 @@ public class BrickFactory : MonoBehaviour
     [SerializeField] private GameObject brickPrefab;
 
     private static BrickFactory instance;
-    public static BrickFactory Instance => instance ??= FindObjectOfType<BrickFactory>();
+    public static BrickFactory Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindFirstObjectByType<BrickFactory>();
+            }
+            return instance;
+        }
+    }
 
     private static readonly Dictionary<BrickType, Func<Brick, GameObject, BrickShow>> brickCreators = new Dictionary<BrickType, Func<Brick, GameObject, BrickShow>>
     {
