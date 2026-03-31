@@ -10,7 +10,7 @@ public class MainMenu : MonoBehaviour
 {
     // ── Inspector ─────────────────────────────────────────────────────────────
 
-    [SerializeField] private LevelRepository levelRepository;
+    [SerializeField] private ScriptableObject levelLoaderAsset;
     [SerializeField] private Button          exitButton;
     [SerializeField] private Button          startButton;
     [SerializeField] private LevelButton     levelButtonPrefab;
@@ -21,11 +21,14 @@ public class MainMenu : MonoBehaviour
 
     private readonly List<LevelButton> levelButtons = new List<LevelButton>();
     private MainMenuViewModel          viewModel;
+    private ILevelLoader               levelLoader;
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
 
     private void Awake()
     {
+        levelLoader = (ILevelLoader)levelLoaderAsset;
+
         viewModel = new MainMenuViewModel();
         mainMenuView.BindingContext = viewModel;
 
@@ -41,9 +44,9 @@ public class MainMenu : MonoBehaviour
 
     private void OpenLevelSelectMenu()
     {
-        levelRepository.LoadLevelData();
+        levelLoader.LoadLevelData();
 
-        List<int> levelKeys = levelRepository.GetAllLevelKeys();
+        List<int> levelKeys = levelLoader.GetAllLevelKeys();
         int       keysCount = levelKeys.Count;
         int       btnCount  = levelButtons.Count;
 

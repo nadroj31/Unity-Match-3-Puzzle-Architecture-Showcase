@@ -5,7 +5,7 @@ using UnityEngine;
 /// Loads and caches level data from JSON files stored in <c>Resources/LevelInfos</c>.
 /// </summary>
 [CreateAssetMenu(fileName = "LevelRepository", menuName = "Game/LevelRepository")]
-public class LevelRepository : ScriptableObject
+public class LevelRepository : ScriptableObject, ILevelLoader
 {
     [SerializeField] private BrickTypeRegistry brickTypeRegistry;
 
