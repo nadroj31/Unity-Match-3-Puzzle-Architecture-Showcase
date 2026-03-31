@@ -594,6 +594,7 @@ MonoBehaviour:
   gameSession: {fileID: 11400000, guid: 16cfe907e64abe0418b69032f7dd507b, type: 2}
   visualConfig: {fileID: 11400000, guid: 503161491befb5d4fa1fbaaf375e0da8, type: 2}
   brickTypeRegistry: {fileID: 11400000, guid: 5774af223857aec4c8676aa2510672c0, type: 2}
+  animationConfig: {fileID: 11400000, guid: ac2c220f6a31c9e4b9ed16575cf856e2, type: 2}
   brickFactory: {fileID: 462278804}
   boardBackground: {fileID: 321177297}
   bricksParent: {fileID: 2019421834}
