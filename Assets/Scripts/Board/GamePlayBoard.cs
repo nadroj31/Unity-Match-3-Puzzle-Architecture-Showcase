@@ -12,7 +12,7 @@ public class GamePlayBoard : MonoBehaviour
     // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Data / Config")]
-    [SerializeField] private LevelRepository   levelRepository;
+    [SerializeField] private ScriptableObject  levelLoaderAsset;
     [SerializeField] private GameSession       gameSession;
     [SerializeField] private BrickVisualConfig visualConfig;
     [SerializeField] private BrickTypeRegistry brickTypeRegistry;
@@ -35,6 +35,7 @@ public class GamePlayBoard : MonoBehaviour
 
     // ── Runtime state ─────────────────────────────────────────────────────────
 
+    private ILevelLoader      levelLoader;
     private LevelDetails      levelDetails;
     private Brick[,]          bricks;
     private BrickShow[,]      brickShows;
@@ -46,12 +47,14 @@ public class GamePlayBoard : MonoBehaviour
 
     private void Awake()
     {
+        levelLoader = (ILevelLoader)levelLoaderAsset;
+
         // Create ViewModel and bind the View BEFORE Initialize() so that
         // property assignments inside SetupWinCondition fire ValueChanged on the View.
         viewModel = new GamePlayViewModel();
         gamePlayView.BindingContext = viewModel;
 
-        levelDetails = levelRepository.GetLevelDetails(gameSession.SelectedLevel);
+        levelDetails = levelLoader.GetLevelDetails(gameSession.SelectedLevel);
         Initialize();
     }
 
