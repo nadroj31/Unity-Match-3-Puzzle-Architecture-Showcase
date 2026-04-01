@@ -26,8 +26,18 @@ public class PropertyBinder<T> where T : ViewModelBase
     /// <exception cref="Exception">Thrown if the field does not exist or has an incompatible type.</exception>
     public void Add<TProperty>(string name, BindableProperty<TProperty>.ValueChangedHandler valueChangedHandler)
     {
-        var fieldInfo = typeof(T).GetField(name, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new Exception(string.Format("Cannot find bindable property field '{0}.{1}'", typeof(T).Name, name));
+        var fieldInfo = typeof(T).GetField(name, BindingFlags.Instance | BindingFlags.Public);
+
+        if (fieldInfo == null)
+        {
+            // Check if the user accidentally declared a C# property instead of a public field.
+            bool declaredAsProperty = typeof(T).GetProperty(name, BindingFlags.Instance | BindingFlags.Public) != null;
+            string hint = declaredAsProperty
+                ? $" '{typeof(T).Name}.{name}' is declared as a C# property — BindableProperty must be a public field (e.g. 'public BindableProperty<T> {name} = new();')."
+                : string.Empty;
+
+            throw new Exception($"Cannot find bindable property field '{typeof(T).Name}.{name}'.{hint}");
+        }
 
         _binders.Add(viewmodel =>
         {
