@@ -20,6 +20,7 @@ public class GamePlayBoard : MonoBehaviour
     [SerializeField] private BoardAnimationConfig animationConfig;
 
     [Header("Scene Components")]
+    [SerializeField] private Camera         gameCamera;
     [SerializeField] private BrickFactory   brickFactory;
     [SerializeField] private SpriteRenderer boardBackground;
     [SerializeField] private Transform      bricksParent;
@@ -96,8 +97,27 @@ public class GamePlayBoard : MonoBehaviour
         bricks     = new Brick[levelDetails.gridWidth, levelDetails.gridHeight];
         brickShows = new BrickShow[levelDetails.gridWidth, levelDetails.gridHeight];
 
+        AdjustCamera();
         PopulateBricks();
         SetupWinCondition();
+    }
+
+    /// <summary>
+    /// Adjusts the camera's orthographic size so the entire board fits on screen,
+    /// regardless of grid dimensions or device aspect ratio.
+    /// </summary>
+    private void AdjustCamera()
+    {
+        if (gameCamera == null) return;
+
+        float boardW    = levelDetails.gridWidth  + animationConfig.backgroundPadding;
+        float boardH    = levelDetails.gridHeight + animationConfig.backgroundPadding;
+        float camAspect = (float)Screen.width / Screen.height;
+
+        float fitByHeight = boardH / 2f;
+        float fitByWidth  = boardW / (2f * camAspect);
+
+        gameCamera.orthographicSize = Mathf.Max(fitByHeight, fitByWidth);
     }
 
     private void PopulateBricks()
