@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 536588b0c6908804c8f054b63b295c3b, type: 3}
   m_Name: GameSession
   m_EditorClassIdentifier: Assembly-CSharp::GameSession
-  SelectedLevel: 0
+  SelectedLevel: 1
