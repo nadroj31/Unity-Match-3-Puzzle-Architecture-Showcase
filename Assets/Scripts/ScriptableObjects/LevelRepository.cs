@@ -54,9 +54,17 @@ public class LevelRepository : ScriptableObject, ILevelLoader
         }
     }
 
-    /// <summary>Returns the cached <see cref="LevelDetails"/> for <paramref name="level"/>, or <c>null</c> if not found.</summary>
+    /// <summary>
+    /// Returns the <see cref="LevelDetails"/> for <paramref name="level"/>.
+    /// Loads all level data automatically on first call if the cache is empty
+    /// (e.g. when entering the gameplay scene directly via the Level Editor).
+    /// Returns <c>null</c> if the level is not found after loading.
+    /// </summary>
     public LevelDetails GetLevelDetails(int level)
     {
+        if (levels.Count == 0)
+            LoadLevelData();
+
         if (levels.TryGetValue(level, out var value))
             return value;
 
