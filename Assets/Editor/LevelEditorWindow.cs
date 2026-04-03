@@ -100,9 +100,25 @@ public class LevelEditorWindow : EditorWindow
 
     private void OnEnable()
     {
+        // Auto-resolve references so the user never has to drag them manually.
+        if (registry    == null) registry    = FindAsset<BrickTypeRegistry>();
+        if (visualConfig == null) visualConfig = FindAsset<BrickVisualConfig>();
+        if (gameSession  == null) gameSession  = FindAsset<GameSession>();
+
         pendingW = gridWidth;
         pendingH = gridHeight;
         EnsureGridSize();
+    }
+
+    /// <summary>
+    /// Finds the first asset of type <typeparamref name="T"/> in the project.
+    /// Works for ScriptableObjects that are expected to have a single instance.
+    /// </summary>
+    private static T FindAsset<T>() where T : ScriptableObject
+    {
+        var guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+        if (guids.Length == 0) return null;
+        return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guids[0]));
     }
 
     // ── OnGUI ─────────────────────────────────────────────────────────────────
