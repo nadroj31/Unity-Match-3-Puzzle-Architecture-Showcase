@@ -1,6 +1,7 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -123,12 +124,18 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
     private void OnGoBackClicked()
     {
         DOTween.KillAll();
-        ScenesManager.Instance.LoadMainMenu();
+        if (ScenesManager.Instance != null)
+            ScenesManager.Instance.LoadMainMenu();
+        else
+            SceneManager.LoadScene("MainScene"); // fallback when entering via Level Editor
     }
 
     private void OnRetryClicked()
     {
         DOTween.KillAll();
-        ScenesManager.Instance.LoadGamePlayScene();
+        if (ScenesManager.Instance != null)
+            ScenesManager.Instance.LoadGamePlayScene();
+        else
+            SceneManager.LoadScene("GamePlayScene"); // fallback when entering via Level Editor
     }
 }

@@ -153,18 +153,30 @@ public class LevelEditorWindow : EditorWindow
 
     private void DrawGoals()
     {
-        string[] codes  = GetPlayableCodes();
-        string[] labels = GetPlayableLabels(codes);
+        string[] allCodes = GetPlayableCodes();
 
         for (int i = 0; i < goals.Count; i++)
         {
+            // Build a list of codes available to this slot:
+            // own current code is always included; codes used by other slots are excluded.
+            var available = new List<string>();
+            foreach (var code in allCodes)
+            {
+                bool usedByOther = false;
+                for (int j = 0; j < goals.Count; j++)
+                    if (j != i && goals[j].brickCode == code) { usedByOther = true; break; }
+                if (!usedByOther) available.Add(code);
+            }
+
+            string[] avCodes  = available.ToArray();
+            string[] avLabels = GetPlayableLabels(avCodes);
+
             EditorGUILayout.BeginHorizontal();
 
-            // Brick-type dropdown
-            int idx = Mathf.Max(0, Array.IndexOf(codes, goals[i].brickCode));
-            idx = EditorGUILayout.Popup($"Goal {i + 1}", idx, labels);
-            if (idx >= 0 && idx < codes.Length)
-                goals[i].brickCode = codes[idx];
+            int idx = Mathf.Max(0, Array.IndexOf(avCodes, goals[i].brickCode));
+            idx = EditorGUILayout.Popup($"Goal {i + 1}", idx, avLabels);
+            if (idx >= 0 && idx < avCodes.Length)
+                goals[i].brickCode = avCodes[idx];
 
             goals[i].count = Mathf.Max(1, EditorGUILayout.IntField(goals[i].count, GUILayout.Width(64)));
             EditorGUILayout.LabelField("bricks", GUILayout.Width(42));
@@ -177,12 +189,21 @@ public class LevelEditorWindow : EditorWindow
             EditorGUILayout.EndHorizontal();
         }
 
-        using (new EditorGUI.DisabledScope(goals.Count >= 3))
+        // Disable Add if all playable types are already used, or if 3 goals are set
+        bool allUsed = goals.Count >= allCodes.Length;
+        using (new EditorGUI.DisabledScope(goals.Count >= 3 || allUsed))
         {
             if (GUILayout.Button("＋  Add Goal"))
             {
-                string firstCode = codes.Length > 0 ? codes[0] : "b";
-                goals.Add(new GoalEntry { brickCode = firstCode });
+                // Pick the first code not yet assigned to any goal
+                string nextCode = "b";
+                foreach (var code in allCodes)
+                {
+                    bool taken = false;
+                    foreach (var g in goals) if (g.brickCode == code) { taken = true; break; }
+                    if (!taken) { nextCode = code; break; }
+                }
+                goals.Add(new GoalEntry { brickCode = nextCode });
             }
         }
     }
