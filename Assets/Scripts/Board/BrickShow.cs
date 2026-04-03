@@ -45,7 +45,7 @@ public class BrickShow : MonoBehaviour, IPointerClickHandler
         var ghostRenderer             = ghost.AddComponent<SpriteRenderer>();
         ghostRenderer.sprite          = spriteRenderer.sprite;
         ghostRenderer.sortingLayerID  = spriteRenderer.sortingLayerID;
-        ghostRenderer.sortingOrder    = spriteRenderer.sortingOrder;
+        ghostRenderer.sortingOrder    = spriteRenderer.sortingOrder + 1; // render above all live bricks
 
         float popDuration    = config.destroyDuration * 0.35f;
         float shrinkDuration = config.destroyDuration * 0.65f;
