@@ -32,15 +32,6 @@ public class RecycledScrollView : MonoBehaviour
     private RectTransform   content;
     private int             poolSize;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
-
-    private void Awake()
-    {
-        sceneNavigator = sceneNavigatorBehaviour as ISceneNavigator;
-        if (sceneNavigator == null)
-            Debug.LogError("[RecycledScrollView] sceneNavigatorBehaviour does not implement ISceneNavigator.", this);
-    }
-
     // ── Public API ────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -80,6 +71,14 @@ public class RecycledScrollView : MonoBehaviour
 
     private void EnsurePoolSize(int required)
     {
+        // Resolve navigator lazily so script execution order does not matter.
+        if (sceneNavigator == null)
+        {
+            sceneNavigator = sceneNavigatorBehaviour as ISceneNavigator;
+            if (sceneNavigator == null)
+                Debug.LogError("[RecycledScrollView] sceneNavigatorBehaviour does not implement ISceneNavigator.", this);
+        }
+
         while (pool.Count < required)
         {
             var btn = Instantiate(buttonPrefab, content);
