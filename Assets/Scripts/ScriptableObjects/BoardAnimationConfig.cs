@@ -25,7 +25,4 @@ public class BoardAnimationConfig : ScriptableObject
     [Tooltip("Extra padding added to each side of the board background sprite.")]
     public float backgroundPadding = 0.3f;
 
-    [Header("Input")]
-    [Tooltip("Seconds to wait after all drop animations settle before checking for cascade matches.")]
-    public float cascadeSettleDelay = 0.05f;
 }

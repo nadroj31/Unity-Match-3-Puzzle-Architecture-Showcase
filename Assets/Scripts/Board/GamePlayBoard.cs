@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -50,6 +50,10 @@ public class GamePlayBoard : MonoBehaviour
 
     private void Awake()
     {
+        // Pre-allocate DOTween capacity to avoid runtime auto-expansion warnings.
+        // 500 tweeners comfortably covers a full board re-drop across cascade rounds.
+        DOTween.SetTweensCapacity(500, 50);
+
         levelLoader = levelLoaderAsset as ILevelLoader;
         if (levelLoader == null)
         {
@@ -190,9 +194,9 @@ public class GamePlayBoard : MonoBehaviour
         BoardLogic.ApplyGravity(matches, bricks, brickTypeRegistry, OnBrickMoved);
         winCondition.OnMatchMade(matchType, matches.Count);
 
-        // If no animations were queued (e.g. empty board edge case), settle immediately.
+        // If no animations were queued (e.g. empty-column edge case), settle immediately.
         if (pendingAnimations <= 0)
-            StartCoroutine(CascadeAfterSettle());
+            OnBoardSettled();
     }
 
     /// <summary>
@@ -219,70 +223,19 @@ public class GamePlayBoard : MonoBehaviour
     {
         pendingAnimations--;
         if (pendingAnimations <= 0)
-            StartCoroutine(CascadeAfterSettle());
-    }
-
-    // ── Cascade ───────────────────────────────────────────────────────────────
-
-    private IEnumerator CascadeAfterSettle()
-    {
-        yield return new WaitForSeconds(animationConfig.cascadeSettleDelay);
-        CheckCascades();
+            OnBoardSettled();
     }
 
     /// <summary>
-    /// Scans the board for any groups that qualify as matches. If found,
-    /// removes them all and re-applies gravity (triggering further cascades via
-    /// animation callbacks). If none found, the board is stable — unlock input
-    /// and evaluate fail condition.
+    /// Called once all drop animations for a move have completed.
+    /// Evaluates the fail condition and releases the input lock.
     /// </summary>
-    private void CheckCascades()
+    private void OnBoardSettled()
     {
-        // Stop if an outcome has already been decided.
-        if (viewModel.IsVictory.Value || viewModel.IsFailed.Value) return;
-
-        List<List<Brick>> allGroups = FindAllCascadeGroups();
-
-        if (allGroups.Count > 0)
-        {
-            foreach (var group in allGroups)
-                ProcessMatches(group);
-        }
+        if (levelDetails.moveLimit > 0 && movesRemaining <= 0 && !viewModel.IsVictory.Value)
+            OnFailConditionMet();
         else
-        {
-            // Board is stable — check fail condition then release input lock.
-            if (levelDetails.moveLimit > 0 && movesRemaining <= 0 && !viewModel.IsVictory.Value)
-                OnFailConditionMet();
-            else
-                isProcessing = false;
-        }
-    }
-
-    /// <summary>
-    /// Finds every connected group on the current board that meets
-    /// <see cref="minMatchCount"/>. Each cell is visited at most once.
-    /// </summary>
-    private List<List<Brick>> FindAllCascadeGroups()
-    {
-        var result  = new List<List<Brick>>();
-        var visited = new HashSet<Brick>();
-
-        for (int x = 0; x < levelDetails.gridWidth; x++)
-        {
-            for (int y = 0; y < levelDetails.gridHeight; y++)
-            {
-                Brick brick = bricks[x, y];
-                if (brick == null || visited.Contains(brick)) continue;
-
-                List<Brick> group = matchStrategy.FindMatches(brick, bricks);
-                foreach (var b in group) visited.Add(b);
-
-                if (group.Count >= minMatchCount)
-                    result.Add(group);
-            }
-        }
-
-        return result;
+            isProcessing = false;
     }
 
     // ── Outcome ───────────────────────────────────────────────────────────────
