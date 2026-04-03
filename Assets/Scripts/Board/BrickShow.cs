@@ -39,8 +39,11 @@ public class BrickShow : MonoBehaviour, IPointerClickHandler
         // Create a lightweight ghost that carries the visual while this BrickShow is recycled.
         var ghost = new GameObject("BrickGhost");
         ghost.transform.SetParent(transform.parent);
-        ghost.transform.localPosition = transform.localPosition;
-        ghost.transform.localScale    = Vector3.one;
+        // Mirror the SpriteRenderer's world-space transform, not the BrickShow root.
+        // If the SpriteRenderer lives on a child object with its own scale, using the
+        // root's localPosition/localScale would create a ghost that is larger than one cell.
+        ghost.transform.position   = spriteRenderer.transform.position;
+        ghost.transform.localScale = spriteRenderer.transform.lossyScale; // world scale → local (parent assumed uniform)
 
         var ghostRenderer             = ghost.AddComponent<SpriteRenderer>();
         ghostRenderer.sprite          = spriteRenderer.sprite;
