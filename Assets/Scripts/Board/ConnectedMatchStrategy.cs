@@ -22,6 +22,11 @@ public class ConnectedMatchStrategy : ScriptableObject, IMatchStrategy
     /// <inheritdoc/>
     public List<Brick> FindMatches(Brick startBrick, Brick[,] board)
     {
+        // IsNone bricks are invisible placeholders — they have no BrickShow and must
+        // never appear in a match list (ProcessMatches would NullRef on Hide()).
+        if (startBrick.BrickType == null || startBrick.BrickType.IsNone)
+            return new List<Brick>();
+
         int width  = board.GetLength(0);
         int height = board.GetLength(1);
 
@@ -44,7 +49,11 @@ public class ConnectedMatchStrategy : ScriptableObject, IMatchStrategy
                     continue;
 
                 Brick neighbor = board[nx, ny];
-                if (visited.Contains(neighbor) || neighbor.BrickType != startBrick.BrickType)
+                if (visited.Contains(neighbor))
+                    continue;
+                if (neighbor.BrickType == null || neighbor.BrickType.IsNone)
+                    continue;
+                if (neighbor.BrickType != startBrick.BrickType)
                     continue;
 
                 visited.Add(neighbor);

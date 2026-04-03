@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>Stateless gravity layer. Pure algorithm — no MonoBehaviour, no scene coupling.</summary>
+/// <summary>
+/// Stateless board algorithms. Pure C# — no MonoBehaviour, no scene coupling.
+/// All methods are safe to unit-test without a running Unity instance.
+/// </summary>
 public static class BoardLogic
 {
     // ── Gravity ───────────────────────────────────────────────────────────────

@@ -41,7 +41,7 @@ A lightweight hand-rolled MVVM system used for all UI state. Key contracts:
 | `GoalInfo` | JSON-deserialisable DTO for a single goal (`brickCode` + `count`) |
 | `GoalData` | Runtime representation of a resolved goal (`BrickTypeSO` + `count`) |
 | `GoalTracker` | Tracks remaining count for one goal; fires `OnGoalCountChanged` / `OnGoalCompleted` |
-| `BoardLogic` (static) | Stateless algorithms: BFS flood-fill (`FindMatchBricks`) and column gravity (`ApplyGravity`) |
+| `BoardLogic` (static) | Stateless algorithms: column gravity (`ApplyGravity`). BFS flood-fill lives in `ConnectedMatchStrategy` |
 
 ### ScriptableObjects (shared assets injected via Inspector)
 | Asset | Role |
@@ -57,7 +57,7 @@ A lightweight hand-rolled MVVM system used for all UI state. Key contracts:
 | `GamePlayViewModel` | Observable UI state: 3 goal slots (`GoalNActive/Sprite/Remaining`), `HasMoveLimit`, `MovesRemaining`, `IsVictory`, `IsFailed` |
 | `GamePlayView` | `ViewBase<GamePlayViewModel>` — binds HUD (moves + goal slots) and outcome panels (victory / fail); handles navigation and retry |
 | `BrickShow` | Per-cell view: sprite, click forwarding via `Action<Brick>`, DOTween drop animation |
-| `BrickFactory` | Instantiates `BrickShow` prefabs; extensible via `brickCreators` dictionary |
+| `BrickFactory` | Instantiates `BrickShow` prefabs; extensible by subclassing and overriding `CreateBrick` |
 | `MainMenu` | Controller — loads level data, drives `RecycledScrollView` and `MainMenuViewModel` |
 | `RecycledScrollView` | Pool-based scroll list — renders only visible `LevelButton` items; sorts by level number ascending |
 | `MainMenuViewModel` | Observable UI state: `IsLevelSelectOpen` |
@@ -67,9 +67,17 @@ A lightweight hand-rolled MVVM system used for all UI state. Key contracts:
 
 ### Interfaces
 - `ISceneNavigator` — decouples callers from `ScenesManager` concrete type
-- `IMatchStrategy` — pluggable match-detection algorithm
-- `IWinCondition` — pluggable win condition (default: `ClearGoalWinCondition`)
-- `ILevelLoader` — pluggable level data source (default: `LevelRepository`)
+- `IMatchStrategy` — pluggable match-detection algorithm (default: `ConnectedMatchStrategy` ScriptableObject)
+- `IWinCondition` — pluggable win condition (default: `ClearGoalWinCondition` MonoBehaviour)
+- `ILevelLoader` — pluggable level data source (default: `LevelRepository` ScriptableObject)
+
+## Important Unity null-check pitfall
+
+`(Object)monoBehaviour == null` detects destroyed Unity objects; the plain C# `== null` does **not**.
+This matters in `RecycledScrollView`: when `MainScene` reloads, the new `ScenesManager` is destroyed
+by the DontDestroyOnLoad singleton's `Awake()`. The Inspector-serialized reference then points to a
+destroyed object that C# still considers non-null. Always use the Unity overload when checking
+MonoBehaviour/ScriptableObject references that may have been destroyed.
 
 ## Key Data Flow
 
@@ -89,14 +97,20 @@ GamePlayBoard.Awake()
             → viewModel.Goal0-2 Active/Sprite/Remaining  ← fires View bindings
 
 OnBrickClick(clicked)
-    → BoardLogic.FindMatchBricks()                 // BFS flood-fill
+    → ConnectedMatchStrategy.FindMatches()         // BFS flood-fill (IMatchStrategy)
     → movesRemaining--  → viewModel.MovesRemaining ← View updates counter
-    → BoardLogic.ApplyGravity()                    // mutates Brick[,]
-    → ClearGoalWinCondition.OnMatchMade()
-        → GoalTracker(s).RegisterMatch()
-            → OnGoalCountChanged → viewModel.GoalN Remaining  ← View updates count
-            → OnGoalCompleted (all) → OnCompleted → viewModel.IsVictory = true
-    → if moves == 0 && !IsVictory → viewModel.IsFailed = true
+    → ProcessMatches()
+        → BrickShow.Hide() for each matched brick  // ghost animation; BrickShow recycled immediately
+        → BoardLogic.ApplyGravity()                // mutates Brick[,]; fires OnBrickMoved per shift
+            → OnBrickMoved → BrickShow.TweenMove() // drop animation; increments pendingAnimations
+        → ClearGoalWinCondition.OnMatchMade()
+            → GoalTracker(s).RegisterMatch()
+                → OnGoalCountChanged → viewModel.GoalN Remaining  ← View updates count
+                → OnGoalCompleted (all) → OnCompleted → viewModel.IsVictory = true
+    → OnSingleAnimationComplete (×N) → OnBoardSettled()
+        → if IsVictory → return (board stays locked)
+        → if moves == 0 → viewModel.IsFailed = true
+        → else → isProcessing = false (unlock input)
 ```
 
 ## Level JSON Format

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 /// <summary>
 /// A generic property wrapper that notifies subscribers when its value changes.
-/// Thread-safe: the value is guarded by a lock; the event is invoked outside the lock.
+/// The setter fires <see cref="ValueChanged"/> only when the incoming value differs from
+/// the current one (compared via <see cref="EqualityComparer{T}"/>).
+/// A lock guards the stored value so reads and writes are safe if ever called from
+/// a background thread, but in normal Unity usage all access is on the main thread.
 /// </summary>
 /// <typeparam name="T">The type of the wrapped value.</typeparam>
 public class BindableProperty<T>

@@ -28,9 +28,9 @@ public class BrickShow : MonoBehaviour, IPointerClickHandler
     // ── Visibility ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Spawns a short-lived visual ghost at this brick's position and plays the
-    /// pop-then-shrink animation on it, then destroys the ghost.
-    /// The original BrickShow is immediately set to scale zero so the gravity
+    /// Spawns a short-lived visual ghost at this brick's position, plays a
+    /// shrink-to-zero animation on it, then destroys the ghost.
+    /// The original BrickShow is immediately hidden (scale zero) so the gravity
     /// system can recycle it for the next incoming brick without interrupting
     /// the destruction animation.
     /// </summary>

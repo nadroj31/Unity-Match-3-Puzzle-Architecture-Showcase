@@ -461,7 +461,10 @@ public class LevelEditorWindow : EditorWindow
         goals.Clear();
         if (info.goals != null)
             foreach (var g in info.goals)
+            {
+                if (goals.Count >= 3) break; // clamp to editor / ViewModel limit
                 goals.Add(new GoalEntry { brickCode = g.brickCode, count = g.count });
+            }
 
         gridFlat.Clear();
         if (info.grid != null)

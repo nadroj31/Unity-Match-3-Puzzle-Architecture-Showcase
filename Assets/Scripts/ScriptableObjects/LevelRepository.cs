@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Loads and caches level data from JSON files stored in <c>Resources/LevelInfos</c>.
+/// Loads and caches level data from JSON files stored in <c>Resources/LevelInfos/</c>.
+/// Implements <see cref="ILevelLoader"/>; assign one asset to <see cref="GamePlayBoard"/>
+/// and <see cref="MainMenu"/> via the Inspector.
 /// </summary>
 [CreateAssetMenu(fileName = "LevelRepository", menuName = "Game/LevelRepository")]
 public class LevelRepository : ScriptableObject, ILevelLoader

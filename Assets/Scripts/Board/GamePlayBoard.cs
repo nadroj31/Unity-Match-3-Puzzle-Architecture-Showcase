@@ -189,7 +189,10 @@ public class GamePlayBoard : MonoBehaviour
         BrickTypeSO matchType = matches[0].BrickType;
 
         foreach (var brick in matches)
-            brickShows[brick.X, brick.Y].Hide(animationConfig);
+        {
+            var show = brickShows[brick.X, brick.Y];
+            if (show != null) show.Hide(animationConfig); // null for IsNone cells (no view)
+        }
 
         BoardLogic.ApplyGravity(matches, bricks, brickTypeRegistry, OnBrickMoved);
         winCondition.OnMatchMade(matchType, matches.Count);
@@ -228,11 +231,15 @@ public class GamePlayBoard : MonoBehaviour
 
     /// <summary>
     /// Called once all drop animations for a move have completed.
-    /// Evaluates the fail condition and releases the input lock.
+    /// Returns immediately if victory was already triggered (the board stays locked).
+    /// Otherwise evaluates the fail condition and releases the input lock.
     /// </summary>
     private void OnBoardSettled()
     {
-        if (levelDetails.moveLimit > 0 && movesRemaining <= 0 && !viewModel.IsVictory.Value)
+        // Victory was already handled by OnWinConditionCompleted — keep the board locked.
+        if (viewModel.IsVictory.Value) return;
+
+        if (levelDetails.moveLimit > 0 && movesRemaining <= 0)
             OnFailConditionMet();
         else
             isProcessing = false;
