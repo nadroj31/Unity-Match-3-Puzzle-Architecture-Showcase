@@ -130,26 +130,48 @@ A custom `EditorWindow` (excluded from builds) for authoring level JSON files:
 ```
 Assets/
 ├── Editor/
-│   └── LevelEditorWindow.cs        # Editor-only level authoring tool
+│   ├── Game.Editor.asmdef          # Editor-only assembly (excluded from builds)
+│   └── LevelEditorWindow.cs        # Custom EditorWindow for level authoring
 ├── Scripts/
+│   ├── Game.asmdef                 # Runtime assembly (references Unity.TextMeshPro)
 │   ├── MVVM/                       # Hand-rolled MVVM framework
-│   │   ├── Core/                   # BindableProperty, ViewModelBase
+│   │   ├── Core/                   # BindableProperty<T>, ViewModelBase
 │   │   ├── View/                   # ViewBase<T>, IView<T>
 │   │   └── Binding/                # PropertyBinder<T>
 │   ├── Board/                      # Game logic + View layer for gameplay
 │   │   ├── GamePlayBoard.cs        # Scene orchestrator
-│   │   ├── BoardLogic.cs           # Static gravity algorithm
-│   │   ├── ConnectedMatchStrategy  # BFS flood-fill (IMatchStrategy)
-│   │   ├── ClearGoalWinCondition   # Goal-based win condition (IWinCondition)
+│   │   ├── BoardLogic.cs           # Static, pure gravity algorithm
+│   │   ├── Brick.cs                # Grid cell model (X, Y, BrickType, Position)
+│   │   ├── ConnectedMatchStrategy.cs  # BFS flood-fill (IMatchStrategy)
+│   │   ├── ClearGoalWinCondition.cs   # Goal-based win condition (IWinCondition)
+│   │   ├── IMatchStrategy.cs       # Pluggable match-detection interface
+│   │   ├── IWinCondition.cs        # Pluggable win-condition interface
 │   │   ├── GoalTracker.cs          # Per-goal progress tracker
-│   │   ├── BrickShow.cs            # Per-cell view + ghost animation
+│   │   ├── BrickShow.cs            # Per-cell view + ghost destruction animation
 │   │   ├── BrickFactory.cs         # Prefab instantiation (extensible)
 │   │   ├── GamePlayViewModel.cs    # Observable HUD state
 │   │   └── GamePlayView.cs         # MVVM View — binds HUD and outcome panels
-│   ├── MainMenu/                   # Main menu controller + MVVM
+│   ├── MainMenu/                   # MainMenu, MainMenuViewModel/View, LevelButton
+│   │   └── RecycledScrollView.cs   # Pool-based level-select list
 │   ├── Level/                      # DTOs and data contracts (no Unity deps)
+│   │   ├── LevelDetails.cs         # Runtime level data
+│   │   ├── LevelInfo.cs / GoalInfo.cs  # JSON-deserialisable DTOs
+│   │   ├── GoalData.cs             # Resolved goal (BrickTypeSO + count)
+│   │   └── ILevelLoader.cs         # Pluggable level-source interface
 │   ├── Manager/                    # ScenesManager, ISceneNavigator
 │   └── ScriptableObjects/          # Shared config assets
+│       ├── BrickTypeSO.cs          # Per-type data (code, IsNone, IsRandom)
+│       ├── BrickTypeRegistry.cs    # All playable types; GetRandom()
+│       ├── BrickVisualConfig.cs    # BrickType → Sprite mapping
+│       ├── BoardAnimationConfig.cs # Tween durations, easing, offsets
+│       ├── GameSession.cs          # Carries SelectedLevel between scenes
+│       └── LevelRepository.cs      # Loads + caches JSON level files (ILevelLoader)
+├── Tests/
+│   └── EditMode/
+│       ├── Tests.EditMode.asmdef   # Test assembly (references Game)
+│       ├── BindablePropertyTests.cs   # 8 tests
+│       ├── GoalTrackerTests.cs        # 11 tests
+│       └── BoardLogicTests.cs         # 6 tests
 └── Resources/
     └── LevelInfos/                 # level_01.json … level_05.json
 ```
