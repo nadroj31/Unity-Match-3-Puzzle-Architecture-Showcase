@@ -15,7 +15,7 @@
 #   UNITY_EMAIL     — your Unity account email
 #   UNITY_PASSWORD  — your Unity account password
 #
-# See activation.yml for one-time setup instructions.
+# One-time setup: copy C:\ProgramData\Unity\Unity_lic.ulf content into UNITY_LICENSE secret.
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Run Unity Tests

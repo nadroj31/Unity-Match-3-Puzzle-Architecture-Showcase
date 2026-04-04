@@ -171,6 +171,24 @@ Edit Mode tests live in `Assets/Tests/EditMode/`. Open **Window → General → 
 - AAA naming: `[Method]_[Condition]_[ExpectedResult]`
 - `GoalTracker`, `BoardLogic`, `BindableProperty` are all pure C# with no MonoBehaviour dependency — runnable without Play Mode
 
+## CI / CD
+
+GitHub Actions workflow lives at `.github/workflows/test.yml`. It runs all 25 Edit Mode tests automatically on every push to `main` and on every pull request.
+
+**Tool:** `game-ci/unity-test-runner@v4` — spins up `ubuntu-6000.3.11f1` Docker image, activates Unity with stored credentials, runs `Tests.EditMode` assembly.
+
+**Required GitHub Secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|---|---|
+| `UNITY_LICENSE` | Full content of `C:\ProgramData\Unity\Unity_lic.ulf` |
+| `UNITY_EMAIL` | Unity account email |
+| `UNITY_PASSWORD` | Unity account password |
+
+**`GITHUB_TOKEN`** is built-in — no setup needed. The job requires `permissions: checks: write` so the runner can post test results back to the commit.
+
+**Important:** The old `game-ci/unity-request-activation-file@v2` action is deprecated. Do NOT use it. Get the `.ulf` directly from the local machine (`C:\ProgramData\Unity\Unity_lic.ulf`) and paste its content into the `UNITY_LICENSE` secret.
+
 ## Coding Conventions
 
 - **No singletons** (except `ScenesManager` which is intentionally persistent across scenes)
