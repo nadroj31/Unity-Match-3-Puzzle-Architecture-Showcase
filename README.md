@@ -200,6 +200,28 @@ Assets/
 
 ---
 
+## Tests
+
+The core logic is covered by **Edit Mode unit tests** (no Play Mode or scene required).
+Open **Window → General → Test Runner → EditMode** and click *Run All* to execute them.
+
+```
+Assets/Tests/EditMode/
+├── BindablePropertyTests.cs   (8 tests)
+├── GoalTrackerTests.cs        (11 tests)
+└── BoardLogicTests.cs         (6 tests)
+```
+
+| Suite | What is tested |
+|---|---|
+| `BindablePropertyTests` | Initial value, `ValueChanged` fires only on actual change, old/new value delivery, unsubscribe |
+| `GoalTrackerTests` | Count decrement, zero-clamp, `IsComplete` guard (completed goal ignores further matches), `OnGoalCompleted` fires exactly once, wildcard goal accepts any colour |
+| `BoardLogicTests` | Bricks fall into gaps, `onBrickMoved` callback fires for moved and new bricks, new-brick type comes from registry, unaffected columns are never touched |
+
+The test targets (`GoalTracker`, `BoardLogic`, `BindableProperty`) are plain C# classes with no MonoBehaviour dependencies, making them straightforward to test in isolation.
+
+---
+
 ## Tech Stack
 
 - **Unity** (2022 LTS+)
