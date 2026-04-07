@@ -16,5 +16,5 @@ MonoBehaviour:
   dropDelay: 0.01
   dropEase: 7
   dropHeightOffset: 2.3
+  destroyDuration: 0.2
   backgroundPadding: 0.3
-  processLockSeconds: 0.4
