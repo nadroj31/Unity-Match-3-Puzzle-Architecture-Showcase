@@ -38,12 +38,17 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
     [SerializeField] private GameObject victoryUI;
     [SerializeField] private GameObject failedUI;
 
+    [Tooltip("Three star GameObjects in order (index 0 = first star). Shown based on best star rating earned.")]
+    [SerializeField] private GameObject[] starObjects = new GameObject[3];
+
     // ── Inspector — Buttons ───────────────────────────────────────────────────
 
     [Header("Buttons")]
     [SerializeField] private Button goBackButton;
     [SerializeField] private Button retryButton;
     [SerializeField] private Button goBackFromFailButton;
+    [Tooltip("Advances to the next level. Hidden automatically when no next level exists.")]
+    [SerializeField] private Button nextLevelButton;
 
     [Header("Dependencies")]
     [SerializeField] private GameSession gameSession;
@@ -60,6 +65,10 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
 
         goBackFromFailButton.onClick.RemoveAllListeners();
         goBackFromFailButton.onClick.AddListener(OnGoBackClicked);
+
+        nextLevelButton.onClick.RemoveAllListeners();
+        nextLevelButton.onClick.AddListener(OnNextLevelClicked);
+        nextLevelButton.gameObject.SetActive(false); // hidden until HasNextLevel is set
     }
 
     // ── ViewBase ──────────────────────────────────────────────────────────────
@@ -85,6 +94,8 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
 
         Binder.Add<bool>  (nameof(GamePlayViewModel.IsVictory),      OnIsVictoryChanged);
         Binder.Add<bool>  (nameof(GamePlayViewModel.IsFailed),       OnIsFailedChanged);
+        Binder.Add<bool>  (nameof(GamePlayViewModel.HasNextLevel),   OnHasNextLevelChanged);
+        Binder.Add<int>   (nameof(GamePlayViewModel.StarCount),      OnStarCountChanged);
 
         // Safe initial state
         movesPanel.SetActive(false);
@@ -121,6 +132,14 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
 
     private void OnIsVictoryChanged(bool _, bool isVictory) => victoryUI.SetActive(isVictory);
     private void OnIsFailedChanged(bool _, bool isFailed)   => failedUI.SetActive(isFailed);
+    private void OnHasNextLevelChanged(bool _, bool hasNext) => nextLevelButton.gameObject.SetActive(hasNext);
+
+    private void OnStarCountChanged(int _, int stars)
+    {
+        for (int i = 0; i < starObjects.Length; i++)
+            if (starObjects[i] != null)
+                starObjects[i].SetActive(i < stars);
+    }
 
     // ── Input ─────────────────────────────────────────────────────────────────
 
@@ -135,6 +154,18 @@ public class GamePlayView : ViewBase<GamePlayViewModel>
             ScenesManager.Instance.LoadMainMenu();
         else
             SceneManager.LoadScene("MainScene"); // fallback when entering via Level Editor
+    }
+
+    private void OnNextLevelClicked()
+    {
+        DOTween.KillAll();
+        if (gameSession != null)
+            gameSession.SelectedLevel++;
+
+        if (ScenesManager.Instance != null)
+            ScenesManager.Instance.LoadGamePlayScene();
+        else
+            SceneManager.LoadScene("GamePlayScene");
     }
 
     private void OnRetryClicked()

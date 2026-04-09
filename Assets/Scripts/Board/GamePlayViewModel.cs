@@ -50,8 +50,20 @@ public class GamePlayViewModel : ViewModelBase
     // ── Outcome ───────────────────────────────────────────────────────────────
 
     /// <summary>Set to <c>true</c> once all goals are completed.</summary>
-    public BindableProperty<bool> IsVictory = new BindableProperty<bool>(false);
+    public BindableProperty<bool> IsVictory    = new BindableProperty<bool>(false);
 
     /// <summary>Set to <c>true</c> when the move limit is exhausted without completing all goals.</summary>
-    public BindableProperty<bool> IsFailed  = new BindableProperty<bool>(false);
+    public BindableProperty<bool> IsFailed     = new BindableProperty<bool>(false);
+
+    /// <summary>
+    /// Set to <c>true</c> when victory is triggered and a next level exists in the repository.
+    /// Drives the visibility of the "Next Level" button on the victory screen.
+    /// </summary>
+    public BindableProperty<bool> HasNextLevel = new BindableProperty<bool>(false);
+
+    /// <summary>
+    /// Stars awarded on victory (1–3). Set once when <see cref="IsVictory"/> becomes true.
+    /// 0 before the level is completed.
+    /// </summary>
+    public BindableProperty<int> StarCount = new BindableProperty<int>(0);
 }

@@ -19,11 +19,13 @@ public class LevelEditorWindow : EditorWindow
 
     // ── Level data ────────────────────────────────────────────────────────────
 
-    [SerializeField] private int             levelNumber = 1;
-    [SerializeField] private int             gridWidth   = 5;
-    [SerializeField] private int             gridHeight  = 7;
-    [SerializeField] private int             moveLimit   = 30;
-    [SerializeField] private List<GoalEntry> goals       = new List<GoalEntry>();
+    [SerializeField] private int             levelNumber    = 1;
+    [SerializeField] private int             gridWidth      = 5;
+    [SerializeField] private int             gridHeight     = 7;
+    [SerializeField] private int             moveLimit      = 30;
+    [SerializeField] private int             star2Threshold = 0;
+    [SerializeField] private int             star3Threshold = 0;
+    [SerializeField] private List<GoalEntry> goals          = new List<GoalEntry>();
 
     /// <summary>
     /// Flat grid in row-major, top-to-bottom order (matches JSON format).
@@ -159,6 +161,27 @@ public class LevelEditorWindow : EditorWindow
         moveLimit = EditorGUILayout.IntField(
             new GUIContent("Move Limit", "Maximum moves the player gets. 0 = unlimited (no fail condition)."),
             moveLimit);
+
+        // Star thresholds are only meaningful when there is a move limit.
+        using (new EditorGUI.DisabledScope(moveLimit <= 0))
+        {
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Star Thresholds (moves remaining on victory)", EditorStyles.miniLabel);
+            star2Threshold = Mathf.Max(0, EditorGUILayout.IntField(
+                new GUIContent("★★  2-Star Threshold", "Moves remaining needed to earn 2 stars. 0 = disabled (always 1 star)."),
+                star2Threshold));
+            star3Threshold = Mathf.Max(0, EditorGUILayout.IntField(
+                new GUIContent("★★★ 3-Star Threshold", "Moves remaining needed to earn 3 stars. 0 = disabled."),
+                star3Threshold));
+
+            if (moveLimit > 0 && star3Threshold > 0 && star2Threshold > 0 && star3Threshold <= star2Threshold)
+                EditorGUILayout.HelpBox("3-Star threshold should be higher than 2-Star threshold.", MessageType.Warning);
+            if (moveLimit > 0 && star3Threshold >= moveLimit)
+                EditorGUILayout.HelpBox("3-Star threshold should be less than the move limit.", MessageType.Warning);
+        }
+
+        if (moveLimit <= 0)
+            EditorGUILayout.HelpBox("Unlimited move levels always award 3 stars — thresholds are ignored.", MessageType.Info);
 
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("Grid Size", EditorStyles.boldLabel);
@@ -380,7 +403,9 @@ public class LevelEditorWindow : EditorWindow
         if (!EditorUtility.DisplayDialog("New Level", "Discard current changes and start fresh?", "Yes", "Cancel"))
             return;
         goals.Clear();
-        moveLimit = 30;
+        moveLimit      = 30;
+        star2Threshold = 0;
+        star3Threshold = 0;
         gridFlat.Clear();
         EnsureGridSize();
         Repaint();
@@ -432,12 +457,14 @@ public class LevelEditorWindow : EditorWindow
 
         var info = new LevelInfo
         {
-            levelNumber = levelNumber,
-            gridWidth   = gridWidth,
-            gridHeight  = gridHeight,
-            moveLimit   = moveLimit,
-            goals       = goalInfos,
-            grid        = gridArray
+            levelNumber    = levelNumber,
+            gridWidth      = gridWidth,
+            gridHeight     = gridHeight,
+            moveLimit      = moveLimit,
+            star2Threshold = star2Threshold,
+            star3Threshold = star3Threshold,
+            goals          = goalInfos,
+            grid           = gridArray
         };
 
         string path = GetFilePath();
@@ -460,11 +487,13 @@ public class LevelEditorWindow : EditorWindow
 
         var info = JsonUtility.FromJson<LevelInfo>(File.ReadAllText(path));
 
-        gridWidth  = Mathf.Clamp(info.gridWidth,  MIN_W, MAX_W);
-        gridHeight = Mathf.Clamp(info.gridHeight, MIN_H, MAX_H);
-        moveLimit  = info.moveLimit;
-        pendingW   = gridWidth;
-        pendingH   = gridHeight;
+        gridWidth      = Mathf.Clamp(info.gridWidth,  MIN_W, MAX_W);
+        gridHeight     = Mathf.Clamp(info.gridHeight, MIN_H, MAX_H);
+        moveLimit      = info.moveLimit;
+        star2Threshold = info.star2Threshold;
+        star3Threshold = info.star3Threshold;
+        pendingW       = gridWidth;
+        pendingH       = gridHeight;
 
         goals.Clear();
         if (info.goals != null)

@@ -25,12 +25,14 @@ public class LevelRepository : ScriptableObject, ILevelLoader
 
             var details = new LevelDetails
             {
-                levelNumber = info.levelNumber,
-                gridWidth   = info.gridWidth,
-                gridHeight  = info.gridHeight,
-                moveLimit   = info.moveLimit,
-                goals       = ParseGoals(info.goals),
-                gridData    = new BrickTypeSO[info.gridWidth, info.gridHeight]
+                levelNumber    = info.levelNumber,
+                gridWidth      = info.gridWidth,
+                gridHeight     = info.gridHeight,
+                moveLimit      = info.moveLimit,
+                star2Threshold = info.star2Threshold,
+                star3Threshold = info.star3Threshold,
+                goals          = ParseGoals(info.goals),
+                gridData       = new BrickTypeSO[info.gridWidth, info.gridHeight]
             };
 
             int expectedCells = info.gridWidth * info.gridHeight;

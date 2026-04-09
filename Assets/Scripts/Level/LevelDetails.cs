@@ -8,6 +8,12 @@ public class LevelDetails
     /// <summary>Maximum moves allowed. 0 means unlimited.</summary>
     public int            moveLimit;
 
+    /// <summary>Moves remaining threshold for 2-star rating. 0 = disabled.</summary>
+    public int            star2Threshold;
+
+    /// <summary>Moves remaining threshold for 3-star rating. 0 = disabled.</summary>
+    public int            star3Threshold;
+
     /// <summary>Resolved goals (0–3 entries). All must be satisfied for victory.</summary>
     public GoalData[]     goals;
 

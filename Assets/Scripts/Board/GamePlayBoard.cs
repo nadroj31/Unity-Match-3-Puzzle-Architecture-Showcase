@@ -275,7 +275,30 @@ public class GamePlayBoard : MonoBehaviour
     private void OnWinConditionCompleted()
     {
         isProcessing = true;
-        viewModel.IsVictory.Value = true;
+
+        // Check whether a next level exists in the repository so the View can
+        // show or hide the "Next Level" button accordingly.
+        int nextLevel = levelDetails.levelNumber + 1;
+        viewModel.HasNextLevel.Value = levelLoader.GetAllLevelKeys().Contains(nextLevel);
+
+        viewModel.StarCount.Value  = CalculateStars();
+        viewModel.IsVictory.Value  = true;
+    }
+
+    /// <summary>
+    /// Determines the star rating (1–3) for the current victory.
+    /// Unlimited-move levels always award 3 stars.
+    /// Move-limited levels check moves remaining against the thresholds defined in the level JSON;
+    /// a threshold of 0 means that tier is not available for this level.
+    /// </summary>
+    private int CalculateStars()
+    {
+        // Free-play / unlimited-move levels always deserve full marks.
+        if (levelDetails.moveLimit <= 0) return 3;
+
+        if (levelDetails.star3Threshold > 0 && movesRemaining >= levelDetails.star3Threshold) return 3;
+        if (levelDetails.star2Threshold > 0 && movesRemaining >= levelDetails.star2Threshold) return 2;
+        return 1;
     }
 
     private void OnFailConditionMet()

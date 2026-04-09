@@ -82,7 +82,7 @@ public class BrickShow : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public BrickShow TweenMove(float originY, float targetY, BoardAnimationConfig config, Action onComplete = null)
     {
-        transform.localPosition = new Vector3(transform.localPosition.x, originY);
+        transform.localPosition = new Vector3(transform.localPosition.x, originY, transform.localPosition.z);
         transform.DOLocalMoveY(targetY, config.dropDuration)
                  .SetEase(config.dropEase)
                  .SetDelay(config.dropDelay)

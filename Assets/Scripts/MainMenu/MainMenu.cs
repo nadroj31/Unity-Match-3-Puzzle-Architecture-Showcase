@@ -48,6 +48,8 @@ public class MainMenu : MonoBehaviour
         // run and destroyed the duplicate ScenesManager before RecycledScrollView tries
         // to resolve its ISceneNavigator reference.  Awake() execution order is
         // non-deterministic; Start() is guaranteed to run after all Awake() calls finish.
+        if (levelLoader == null) return; // levelLoaderAsset was misconfigured; Awake() already logged the error
+
         if (gameSession != null && gameSession.ReturnToLevelSelect)
         {
             gameSession.ReturnToLevelSelect = false; // consume the flag
