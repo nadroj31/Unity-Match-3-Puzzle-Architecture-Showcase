@@ -12,6 +12,12 @@ public class LevelButton : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private GameSession     gameSession;
 
+    [Header("Gem Icon")]
+    [Tooltip("The circular gem image on the left of the button. Sprite cycles through gemCycleSprites based on level number.")]
+    [SerializeField] private Image    gemIcon;
+    [Tooltip("Sprites cycled by level number: index 0 = level 1, 4, 7 … · index 1 = level 2, 5, 8 … · index 2 = level 3, 6, 9 …")]
+    [SerializeField] private Sprite[] gemCycleSprites = new Sprite[3];
+
     private int              level;
     private ISceneNavigator  sceneNavigator;
 
@@ -27,11 +33,14 @@ public class LevelButton : MonoBehaviour
     /// </summary>
     public void SetNavigator(ISceneNavigator navigator) => sceneNavigator = navigator;
 
-    /// <summary>Configures the displayed level number for this button.</summary>
+    /// <summary>Configures the displayed level number for this button and updates the gem icon sprite.</summary>
     public void SetLevelText(int levelNumber)
     {
         levelText.text = $"Level {levelNumber}";
         level          = levelNumber;
+
+        if (gemIcon != null && gemCycleSprites != null && gemCycleSprites.Length > 0)
+            gemIcon.sprite = gemCycleSprites[(levelNumber - 1) % gemCycleSprites.Length];
     }
 
     private void OpenGamePlayScene()
