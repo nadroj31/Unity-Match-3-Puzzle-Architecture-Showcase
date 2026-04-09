@@ -111,6 +111,12 @@ This avoids the common pitfall of animation coroutines being cancelled when the 
 
 Each goal is tracked by a `GoalTracker` instance with an `IsComplete` guard, ensuring `OnGoalCompleted` fires **exactly once** regardless of how many matches are registered after the goal is satisfied.
 
+After every move settles, `GamePlayBoard.IsDeadlocked()` scans the board using the same `IMatchStrategy` as normal gameplay. If no group of `minMatchCount` or more exists, the fail condition triggers immediately — the player is never left with moves remaining but nothing to tap.
+
+### Star Rating
+
+Victory awards 1–3 stars based on moves remaining at the end of the level. Thresholds are defined per-level in JSON (`star2Threshold`, `star3Threshold`). Unlimited-move levels always award 3 stars. The star count is pushed into `GamePlayViewModel.StarCount` and displayed by the View — no persistence in the showcase version.
+
 ### Recycled Scroll View (`RecycledScrollView`)
 
 Pool-based level-select list. Only the visible rows plus a small buffer are instantiated — performance is constant regardless of total level count.
@@ -123,7 +129,12 @@ A custom `EditorWindow` (excluded from builds) for authoring level JSON files:
 - Click or drag to paint brick types on the grid
 - Enforces grid size constraints (width 3–10, height 3–12)
 - Prevents duplicate goal types across slots
+- Star threshold fields with validation warnings (3-star must exceed 2-star; both must be below move limit)
 - **Test Level**: saves JSON → sets `GameSession.SelectedLevel` → opens `GamePlayScene` → enters Play Mode in one click
+
+### Camera Fit (`CameraFitBackground`)
+
+A lightweight component that scales a `SpriteRenderer` to exactly fill the orthographic camera's visible area. Runs in `Start()` — after `GamePlayBoard.Awake()` has already called `AdjustCamera()` — so the background always covers the full screen regardless of level grid size or device aspect ratio.
 
 ---
 
@@ -197,6 +208,7 @@ Assets/
 ```
 
 - `moveLimit`: `0` = unlimited (free-play, no fail condition)
+- `star2Threshold` / `star3Threshold`: moves remaining on victory needed for 2 or 3 stars; `0` = disabled
 - `goals`: 0–3 entries; empty array = free-play mode
 - `brickCode`: `"b"` blue · `"g"` green · `"r"` red · `"y"` yellow · unknown = random
 
@@ -268,6 +280,9 @@ Toon Blast removes one connected group per tap — cascading chain reactions are
 
 **DontDestroyOnLoad used sparingly.**
 Only `ScenesManager` persists across scenes. All other systems are scene-local and injected via the Inspector, avoiding the global-state problems that `DontDestroyOnLoad` overuse creates.
+
+**Showcase vs Asset Store.**
+This repository demonstrates the architecture. The full Asset Store release adds: audio system (`AudioManager` + `IAudioService`), player progress persistence (`PlayerProgressService`), level locking, victory/fail animations, button press feedback (`ButtonFeedback`), and 20 levels. These are intentionally omitted here to keep the codebase focused on structure.
 
 ---
 
