@@ -1,11 +1,19 @@
 {
     "levelNumber": 2,
-    "gridWidth": 6,
-    "gridHeight": 6,
-    "moveLimit": 25,
+    "gridWidth": 5,
+    "gridHeight": 5,
+    "moveLimit": 22,
+    "star2Threshold": 7,
+    "star3Threshold": 14,
     "goals": [
-        { "brickCode": "y", "count": 12 },
-        { "brickCode": "b", "count": 6 }
+        { "brickCode": "b", "count": 10 },
+        { "brickCode": "g", "count": 8 }
     ],
-    "grid": ["y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "b", "b", "b", "b", "b", "b", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r", "r"]
+    "grid": [
+        "b","g","b","g","r",
+        "g","b","g","b","y",
+        "b","b","r","g","g",
+        "y","g","b","b","r",
+        "r","r","g","y","b"
+    ]
 }

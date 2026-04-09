@@ -1,12 +1,21 @@
 {
     "levelNumber": 3,
-    "gridWidth": 7,
+    "gridWidth": 6,
     "gridHeight": 7,
-    "moveLimit": 35,
+    "moveLimit": 25,
+    "star2Threshold": 8,
+    "star3Threshold": 16,
     "goals": [
-        { "brickCode": "r", "count": 15 },
-        { "brickCode": "b", "count": 10 },
-        { "brickCode": "g", "count": 8 }
+        { "brickCode": "b", "count": 15 },
+        { "brickCode": "r", "count": 12 }
     ],
-    "grid": ["y", "y", "random", "random", "random", "g", "g", "y", "y", "random", "random", "random", "g", "g", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "b", "random", "random", "random", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"]
+    "grid": [
+        "b","r","b","g","r","y",
+        "r","b","r","b","g","r",
+        "b","b","r","g","r","b",
+        "r","g","b","r","b","g",
+        "g","r","b","b","r","g",
+        "b","g","r","g","b","r",
+        "r","b","g","r","b","b"
+    ]
 }
