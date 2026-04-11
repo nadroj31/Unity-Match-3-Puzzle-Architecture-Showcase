@@ -18,7 +18,7 @@ MonoBehaviour:
   - brickType: {fileID: 11400000, guid: 682bafd153d9a2a41ae67193adfe3c3e, type: 2}
     sprite: {fileID: 21300000, guid: 9b8cd8c19f02e4c46b52494fa4ab0698, type: 3}
   - brickType: {fileID: 11400000, guid: 94a73e6f59ddab540ab042f7df65b6aa, type: 2}
-    sprite: {fileID: 21300000, guid: 2c3bdbbba5013c54895e0de55656e0a6, type: 3}
+    sprite: {fileID: 21300000, guid: 5d23ff8157938bd4c9e546b35feadfa9, type: 3}
   - brickType: {fileID: 11400000, guid: cb5ec078b91d33f4ebcb168074b0eba5, type: 2}
     sprite: {fileID: 21300000, guid: 33012ea0b09cdd747a8ff222b21d57b1, type: 3}
   - brickType: {fileID: 11400000, guid: 7fab419e2e81694498bbfa471c9b354e, type: 2}
